@@ -1,0 +1,81 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each": {
+                "actions": {
+                    "Send_an_email_(V2)": {
+                        "inputs": {
+                            "body": {
+                                "Body": "<p>Details are as follows <br>\n<br>\nMessage : @{items('For_each')}<br>\nChannel ID : @{items('For_each')?['channelId']}<br>\nTeams ID : @{items('For_each')?['teamId']}</p>",
+                                "Importance": "Normal",
+                                "Subject": " ​Inappropriate Content Detected in a Teams Chat",
+                                "To": "AddYourUserName@algonquinlive.com"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['office365']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/v2/Mail"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@triggerBody()?['value']",
+                "runAfter": {},
+                "type": "Foreach"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_keywords_are_mentioned": {
+                "inputs": {
+                    "body": {
+                        "channels": [
+                            "19:VziX-mgpM17MFBDi43BLodxbFgeV6sgXzS8eB2aevvw1@thread.tacv2",
+                            "19:5c86df05ff5d444fb255265680ab3405@thread.tacv2"
+                        ],
+                        "groupId": "48457dfd-c322-4d1e-a1a0-723dafeeef39",
+                        "notificationUrl": "@{listCallbackUrl()}"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['teams']['connectionId']"
+                        }
+                    },
+                    "path": "/beta/subscriptions/keywordtrigger/threadType/@{encodeURIComponent('channel')}",
+                    "queries": {
+                        "$search": "Bad, Fat, Hell"
+                    }
+                },
+                "type": "ApiConnectionWebhook"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "office365": {
+                    "connectionId": "/AD UR CONNECTION ID",
+                    "connectionName": "office365",
+                    "id": "ADD UR SUBSCRIPTIONID"
+                },
+                "teams": {
+                    "connectionId": "/subscriptions/5eb83737-e0c8-46c1-818d-4d9725820e3f/resourceGroups/Lab3/providers/Microsoft.Web/connections/teams",
+                    "connectionName": "teams",
+                    "id": "/subscriptions/5eb83737-e0c8-46c1-818d-4d9725820e3f/providers/Microsoft.Web/locations/canadacentral/managedApis/teams"
+                }
+            }
+        }
+    }
+}
